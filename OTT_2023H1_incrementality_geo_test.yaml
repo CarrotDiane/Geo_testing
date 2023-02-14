@@ -1,0 +1,79 @@
+xp_domain:
+# domain of the experiment
+# example: growth, catalog, fulfillment
+  growth
+
+xp_name:
+# name of the experiment
+  OTT_2023H1_incrementality_geo_test
+
+date_col:
+# the date col name in the underlying feature table
+# example: date_pt, ds
+  date_pt
+
+rand_unit:
+# the geo unit for randomization
+# example: dma_id, zone_id, region_id
+  dma_id
+
+rand_date_range:
+# the start and end date to pull historical data for randomization
+  start_date: "2023-01-01"
+  end_date: "2023-02-12"
+
+rand_constraint:
+# the geo constrains for randomization, can be hardcoded (exclusion or inclusion), or dynamic (through a SQL snippet)
+# valid example: exclusion, inclusion or dynamic
+
+  # exclusion:
+  #   - 644
+  #   - 500
+  #   - 551
+
+  dynamic:
+  # a subquery to define the geo ids to include
+    select distinct gma from analysts.hz_zip_gma_zone_region_mapping limit 200
+
+rand_method:
+# method to run randomization
+# valid example: time_based_regression, diff_in_diff
+  time_based_regression
+
+
+variants:
+    num_variants:
+    # number of total variants to split
+        2
+
+    num_of_geos_in_each_variant:
+    # diff_in_diff method currently only supports same number of geos in each variant
+
+
+    weight_of_geos_in_each_variant:
+    # the weight (percentage) of geos in each variant, used in time_based_regression method
+      - 0.8
+      - 0.2
+
+
+match_metrics:
+# objective metrics to match for
+  - dma_agg_mp_activations
+  - dma_agg_mp_imao_12m
+  - dma_agg_mp_gtv
+
+control_metrics:
+# additional metrics to control for
+  - dma_agg_mp_orders
+
+weight_metric:
+# one single metric to weight each geo
+
+
+metron_table:
+# underlying table for data pull for randomization
+  instadata.ml.feature__growth_dma_agg_mp_features
+
+minimum_detectable_effect:
+# not directly used for randomiztion, but is used for power analysis post randomization
+  0.05
